@@ -1,0 +1,65 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.4'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version "7.12.0"
+}
+
+group = 'br.com.ldf.medium'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2024.0.1")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+	implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
+	implementation 'com.google.code.gson:gson:2.12.1'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named("compileJava") {
+	dependsOn("openApiGenerate")
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+openApiGenerate {
+	generatorName.set("java")
+	sourceSets {named("main") {java {srcDirs("$buildDir/generated/src/main/java")}}}
+	inputSpec.set("$rootDir/src/main/resources/wizard-world.yaml")
+	outputDir.set("$buildDir/generated")
+	apiPackage.set("br.com.ldf.medium.integration")
+	modelPackage.set("br.com.ldf.medium.model")
+	configOptions.put("dateLibrary", "java8")
+	configOptions.put("useJakartaEe", "true")
+	configOptions.put("useSpringBoot3", "true")
+	configOptions.put("library", "okhttp-gson")
+	configOptions.put("serializationLibrary", "jackson")
+}
+
+
