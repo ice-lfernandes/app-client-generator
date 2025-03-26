@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: app-client-generator
+
+wizard-world:
+  base-path: https://wizard-world-api.herokuapp.com
